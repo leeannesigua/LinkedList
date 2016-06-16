@@ -1,0 +1,228 @@
+/*  Lee Anne Sigua
+    masc0839
+*/
+
+package data_structures;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class LinearList<E> implements LinearListADT<E> {
+    private class Node{
+        E data;
+        Node next;
+        public Node (E d){
+            data = d;
+            next = null;
+        }
+    }
+    
+    private Node head,tail;
+    private int currentSize;
+    public LinearList(){
+        head = tail = null;
+        currentSize = 0;
+    }
+
+    public void addLast(E obj){
+        Node newNode = new Node(obj);
+        if (head == null)
+            head = tail = newNode;
+        else{
+        tail.next = newNode;
+        tail = newNode;
+        }
+        currentSize++;
+    }
+      
+    public void addFirst(E obj){                        
+        Node newNode = new Node (obj);
+        if (head == null){
+            head = tail = newNode;
+        }
+        else{
+            newNode.next = head;
+            head = newNode;
+        }
+        currentSize++;
+    }
+    
+    public void insert(E obj, int location){
+        if(location < 1 || location > currentSize + 1)
+            throw new RuntimeException();
+        Node newNode = new Node(obj);
+        Node previous = null, current = head;
+        if (head == null) {
+            head = tail = newNode;
+            currentSize++;
+            return;
+            }
+        if(location == 1)  {
+            addFirst(obj);
+            return;
+            }
+        else if(location == currentSize+1) {
+            addLast(obj);            
+            return;
+            }
+      for (int i = 0; i < location-1; i++){      
+          previous = current;
+          current = current.next;
+          }          
+        newNode.next = current;
+        previous.next = newNode;
+        currentSize++;
+    }
+
+    public E remove (int location){                    
+        if(location > currentSize || location < 1)          
+            throw new RuntimeException();
+        Node previous = null, current = head;
+        if (head == null) //if empty
+            return null;
+//System.out.println("Location is: " + location + " size is " + size());  
+            for (int i = 1; i < location; i++){ 
+//System.out.println("data: " + current.data);                      
+                previous = current;
+                current = current.next;
+            }
+            if (head == tail) //if only one element in list
+                head = tail = null;
+            else if (current == head) //if first element needs to be removed
+                head = head.next;
+            else if (current == tail){ //if last element needs to be removed
+                tail = previous;
+                previous.next = null;
+            }
+            else
+                previous.next = current.next; //if need to remove in middle of list
+            if (head == null)
+                tail = null;
+            currentSize--;
+            return current.data;
+    }
+    
+    public E remove(E obj){
+        Node previous = null, current = head;
+        while (current != null && ((Comparable<E>) obj).compareTo(current.data) != 0){
+            previous = current;
+            current = current.next;
+        }
+        if (current == null)
+            return null;
+        else if (head == tail){
+            head = tail = null;
+            currentSize--;
+            return current.data;
+        }
+        if (current == head){
+            head = head.next;
+            currentSize--;
+            return current.data;
+        }
+        else if (current == tail){
+            previous.next = null;
+            tail = previous;
+            currentSize--;
+            return current.data;
+        }
+        previous.next = current.next;
+        currentSize--;
+        return current.data;
+    }
+    
+    public E removeFirst(){
+        Node current = head;
+        if (head == null)
+            return null;
+        head = head.next;
+        currentSize--;
+        return current.data;
+        //return null;
+    }
+    
+    public E removeLast(){
+        return remove(currentSize);
+    }
+
+    public E get(int location){
+        if(location > currentSize || location < 1)
+            throw new RuntimeException();
+        if (head == null)
+            return null;            
+        Node current = head;
+
+
+        for(int i = 1; i < location; i++){
+            current = current.next;
+        }
+        return current.data;
+
+    }
+
+    public boolean contains(E obj){
+        Node previous = null, current = head;
+        if (head == null)
+            return false;
+        while (current != null){
+            if (((Comparable<E>) obj).compareTo(current.data) == 0)
+                return true;
+            current = current.next;
+        }
+        return false;
+    }
+    
+    public int locate(E obj){
+        int j = 1;
+        Node previous = null, current = head;
+        if (head == null)
+            return -1;
+        while (current != null && ((Comparable<E>) obj).compareTo(current.data) != 0) {
+                previous = current;
+                current = current.next;
+                j++;
+        }
+        if(current == null) return -1;    
+        return j;
+    }
+
+    public void clear(){
+        head = tail = null;
+        currentSize = 0;
+    }
+
+    public boolean isEmpty(){
+        return currentSize == 0;
+        
+        
+    }
+
+    public int size(){
+        return currentSize;
+        
+    }
+    
+    public Iterator<E> iterator(){
+        return new IteratorHelper();
+    }
+    class IteratorHelper implements Iterator<E>{
+        Node iterPtr;
+    
+        public IteratorHelper(){
+                iterPtr = head;
+        }
+        public boolean hasNext(){
+                return iterPtr != null;
+        }
+        public E next(){
+                if (!hasNext())
+                        throw new NoSuchElementException();
+                E tmp = (E) iterPtr.data;
+                iterPtr = iterPtr.next;
+                return tmp;
+        }
+        public void remove(){
+                throw new UnsupportedOperationException();
+        }
+    }  
+}
